@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Gustavo-Jezini/Node-Typescript/issues"
   },
-  "homepage": "https://github.com/Gustavo-Jezini/Node-Typescript#readme"
+  "homepage": "https://github.com/Gustavo-Jezini/Node-Typescript#readme",
+  "devDependencies": {
+    "git-commit-msg-linter": "^4.5.0"
+  }
 }
