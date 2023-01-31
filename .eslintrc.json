@@ -4,6 +4,7 @@
     "project": "./tsconfig.json"
   },
   "rules": {
-    "@typescript-eslint/prefer-nullish-coalescing": false
+    "@typescript-eslint/prefer-nullish-coalescing": 0,
+    "@typescript-eslint/strict-boolean-expressions": 0
   }
 }
