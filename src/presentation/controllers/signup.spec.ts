@@ -9,7 +9,7 @@ interface systemUnderTestTypes {
   emailValidatorStub: EmailValidator
 }
 
-const makeSystemUnderTest = (): systemUnderTestTypes => {
+const makeEmailValidator = (): EmailValidator => {
   // implements garante que será respeitado o que será definido na classe de produção
   class EmailValidatorStub implements EmailValidator {
     isValid (email: string): boolean {
@@ -18,7 +18,23 @@ const makeSystemUnderTest = (): systemUnderTestTypes => {
     }
   }
 
-  const emailValidatorStub = new EmailValidatorStub()
+  return new EmailValidatorStub()
+}
+
+const makeEmailValidatorWithError = (): EmailValidator => {
+  // implements garante que será respeitado o que será definido na classe de produção
+  class EmailValidatorStub implements EmailValidator {
+    isValid (email: string): boolean {
+      // Mockar o valor que funciona! E testar a excessão, o erro
+      throw new Error()
+    }
+  }
+
+  return new EmailValidatorStub()
+}
+
+const makeSystemUnderTest = (): systemUnderTestTypes => {
+  const emailValidatorStub = makeEmailValidator()
   const sut = new SignUpController(emailValidatorStub)
   return {
     sut,
@@ -120,13 +136,8 @@ describe('SignUp Controller', () => {
   test('Should return 500 if EmailValidator throws', () => {
     // Sempre retorna um emailValidator True. Entao precisa usar outro
     // const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
-    class EmailValidatorStub implements EmailValidator {
-      isValid (email: string): boolean {
-        // Mockar o valor que funciona! E testar a excessão, o erro
-        throw new Error()
-      }
-    }
-    const emailValidatorStub = new EmailValidatorStub()
+
+    const emailValidatorStub = makeEmailValidatorWithError()
     const systemUnderTest = new SignUpController(emailValidatorStub)
     const httpRequest = {
       body: {
