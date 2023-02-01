@@ -21,18 +21,6 @@ const makeEmailValidator = (): EmailValidator => {
   return new EmailValidatorStub()
 }
 
-const makeEmailValidatorWithError = (): EmailValidator => {
-  // implements garante que será respeitado o que será definido na classe de produção
-  class EmailValidatorStub implements EmailValidator {
-    isValid (email: string): boolean {
-      // Mockar o valor que funciona! E testar a excessão, o erro
-      throw new Error()
-    }
-  }
-
-  return new EmailValidatorStub()
-}
-
 const makeSystemUnderTest = (): systemUnderTestTypes => {
   const emailValidatorStub = makeEmailValidator()
   const sut = new SignUpController(emailValidatorStub)
@@ -137,8 +125,12 @@ describe('SignUp Controller', () => {
     // Sempre retorna um emailValidator True. Entao precisa usar outro
     // const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
 
-    const emailValidatorStub = makeEmailValidatorWithError()
-    const systemUnderTest = new SignUpController(emailValidatorStub)
+    const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
+
+    jest.spyOn(emailValidatorStub, 'isValid').mockImplementationOnce(() => {
+      throw new Error()
+    })
+
     const httpRequest = {
       body: {
         name: 'any_name',
@@ -147,6 +139,7 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
+
     const httpResponse = systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
