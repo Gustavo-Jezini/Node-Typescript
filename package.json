@@ -4,10 +4,10 @@
   "description": "\"# Node-Typescript\"",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "lint": "eslint src/**",
     "prepare": "husky install",
-    "test:staged": "jest"
+    "test:staged": "jest --passWithNoTests"
   },
   "repository": {
     "type": "git",
