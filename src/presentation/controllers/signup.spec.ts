@@ -87,6 +87,21 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new MissingParamErrors('passwordConfirmation'))
   })
 
+  test('Should return 400 if password confirmation failed', () => {
+    const { sut: systemUnderTest } = makeSystemUnderTest()
+    const httpRequest = {
+      body: {
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'invalid_password',
+        name: 'any_name'
+      }
+    }
+    const httpResponse = systemUnderTest.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new InvalidParamErrors('passwordConfirmation'))
+  })
+
   test('Should return 400 if an invalid email is provided', () => {
     const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
     // Estou usando o Jest para mockar o valor como falso
