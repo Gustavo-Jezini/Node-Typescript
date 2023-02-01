@@ -2,6 +2,7 @@ import { SignUpController } from './signup'
 import { MissingParamErrors } from '../errors/missing-params-errors'
 import { InvalidParamErrors } from '../errors/invalid-params-errors'
 import { type EmailValidator } from '../protocols/email-validator'
+import { ServerError } from '../errors/server-params-errors'
 
 interface systemUnderTestTypes {
   sut: SignUpController
@@ -114,5 +115,29 @@ describe('SignUp Controller', () => {
     }
     systemUnderTest.handle(httpRequest)
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
+  })
+
+  test('Should return 500 if EmailValidator throws', () => {
+    // Sempre retorna um emailValidator True. Entao precisa usar outro
+    // const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
+    class EmailValidatorStub implements EmailValidator {
+      isValid (email: string): boolean {
+        // Mockar o valor que funciona! E testar a excessão, o erro
+        throw new Error()
+      }
+    }
+    const emailValidatorStub = new EmailValidatorStub()
+    const systemUnderTest = new SignUpController(emailValidatorStub)
+    const httpRequest = {
+      body: {
+        name: 'any_name',
+        email: 'any_email@mail.com',
+        password: 'any_password',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = systemUnderTest.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(500)
+    expect(httpResponse.body).toEqual(new ServerError())
   })
 })
