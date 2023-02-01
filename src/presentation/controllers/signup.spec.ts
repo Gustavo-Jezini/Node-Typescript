@@ -29,19 +29,19 @@ describe('SignUp Controller', () => {
     expect(httpResponse.body).toEqual(new Error('Missing param: email'))
   })
 
-  // test('Should return 400 if no password is provided', () => {
-  //   const systemUnderTest = new SignUpController()
-  //   const httpRequest = {
-  //     body: {
-  //       email: 'any_email@mail.com',
-  //       name: 'any_name',
-  //       passwordConfirmation: 'any_password'
-  //     }
-  //   }
-  //   const httpResponse = systemUnderTest.handle(httpRequest)
-  //   expect(httpResponse.statusCode).toBe(400)
-  //   expect(httpResponse.body).toEqual(new Error('Missing param: password'))
-  // })
+  test('Should return 400 if no password is provided', () => {
+    const systemUnderTest = new SignUpController()
+    const httpRequest = {
+      body: {
+        email: 'any_email@mail.com',
+        name: 'any_name',
+        passwordConfirmation: 'any_password'
+      }
+    }
+    const httpResponse = systemUnderTest.handle(httpRequest)
+    expect(httpResponse.statusCode).toBe(400)
+    expect(httpResponse.body).toEqual(new Error('Missing param: password'))
+  })
 
   // test('Should return 400 if no password confirmation is provided', () => {
   //   const systemUnderTest = new SignUpController()
