@@ -22,14 +22,14 @@ const makeEmailValidator = (): EmailValidator => {
 
 const makeAddAccount = (): AddAccount => {
   class AddAcountStub implements AddAccount {
-    add (account: AddAccountModel): AccountModel {
+    async add (account: AddAccountModel): Promise<AccountModel> {
       const fakeAccount = {
         id: 'valid_id',
         name: 'valid_name',
         email: 'valid_email@mail.com',
         password: 'valid_password'
       }
-      return fakeAccount
+      return await new Promise((resolve) => { resolve(fakeAccount) })
     }
   }
 
@@ -48,7 +48,7 @@ const makeSystemUnderTest = (): systemUnderTestTypes => {
 }
 
 describe('SignUp Controller', () => {
-  test('Should return 400 if no name is provided', () => {
+  test('Should return 400 if no name is provided', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -57,12 +57,12 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamErrors('name'))
   })
 
-  test('Should return 400 if no email is provided', () => {
+  test('Should return 400 if no email is provided', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -71,12 +71,12 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamErrors('email'))
   })
 
-  test('Should return 400 if no password is provided', () => {
+  test('Should return 400 if no password is provided', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -85,12 +85,12 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamErrors('password'))
   })
 
-  test('Should return 400 if no password confirmation is provided', () => {
+  test('Should return 400 if no password confirmation is provided', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -99,12 +99,12 @@ describe('SignUp Controller', () => {
         name: 'any_name'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new MissingParamErrors('passwordConfirmation'))
   })
 
-  test('Should return 400 if password confirmation failed', () => {
+  test('Should return 400 if password confirmation failed', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -114,12 +114,12 @@ describe('SignUp Controller', () => {
         name: 'any_name'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamErrors('passwordConfirmation'))
   })
 
-  test('Should return 400 if an invalid email is provided', () => {
+  test('Should return 400 if an invalid email is provided', async () => {
     const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
     // Estou usando o Jest para mockar o valor como falso
     jest.spyOn(emailValidatorStub, 'isValid').mockReturnValueOnce(false)
@@ -132,12 +132,12 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(400)
     expect(httpResponse.body).toEqual(new InvalidParamErrors('email'))
   })
 
-  test('Should call EmailValidator with correct email', () => {
+  test('Should call EmailValidator with correct email', async () => {
     const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
     const isValidSpy = jest.spyOn(emailValidatorStub, 'isValid')
 
@@ -149,11 +149,11 @@ describe('SignUp Controller', () => {
         passwordConfirmation: 'any_password'
       }
     }
-    systemUnderTest.handle(httpRequest)
+    await systemUnderTest.handle(httpRequest)
     expect(isValidSpy).toHaveBeenCalledWith('any_email@mail.com')
   })
 
-  test('Should return 500 if EmailValidator throws', () => {
+  test('Should return 500 if EmailValidator throws', async () => {
     // Sempre retorna um emailValidator True. Entao precisa usar outro
     // const { sut: systemUnderTest, emailValidatorStub } = makeSystemUnderTest()
 
@@ -172,12 +172,12 @@ describe('SignUp Controller', () => {
       }
     }
 
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Should call AddAcount with correct values', () => {
+  test('Should call AddAcount with correct values', async () => {
     const { sut: systemUnderTest, addAccountStub } = makeSystemUnderTest()
 
     const addSpy = jest.spyOn(addAccountStub, 'add')
@@ -191,7 +191,7 @@ describe('SignUp Controller', () => {
       }
     }
 
-    systemUnderTest.handle(httpRequest)
+    await systemUnderTest.handle(httpRequest)
     expect(addSpy).toHaveBeenCalledWith({
       name: 'any_name',
       email: 'any_email@mail.com',
@@ -199,11 +199,11 @@ describe('SignUp Controller', () => {
     })
   })
 
-  test('Should return 500 if addAccount throws', () => {
+  test('Should return 500 if addAccount throws', async () => {
     const { sut: systemUnderTest, addAccountStub } = makeSystemUnderTest()
 
-    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(() => {
-      throw new Error()
+    jest.spyOn(addAccountStub, 'add').mockImplementationOnce(async () => {
+      return await new Promise((_resolve, reject) => { reject(new Error()) })
     })
 
     const httpRequest = {
@@ -215,12 +215,12 @@ describe('SignUp Controller', () => {
       }
     }
 
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(500)
     expect(httpResponse.body).toEqual(new ServerError())
   })
 
-  test('Should return 200 if valid data is provided', () => {
+  test('Should return 200 if valid data is provided', async () => {
     const { sut: systemUnderTest } = makeSystemUnderTest()
     const httpRequest = {
       body: {
@@ -230,7 +230,7 @@ describe('SignUp Controller', () => {
         name: 'valid_name'
       }
     }
-    const httpResponse = systemUnderTest.handle(httpRequest)
+    const httpResponse = await systemUnderTest.handle(httpRequest)
     expect(httpResponse.statusCode).toBe(200)
     expect(httpResponse.body).toEqual({
       email: 'valid_email@mail.com',
