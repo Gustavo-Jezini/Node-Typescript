@@ -1,10 +1,6 @@
 import { SignUpController } from './signup'
-import { MissingParamErrors } from '../errors/missing-params-errors'
-import { InvalidParamErrors } from '../errors/invalid-params-errors'
-import { type EmailValidator } from '../protocols/email-validator'
-import { ServerError } from '../errors/server-params-errors'
-import { type AddAccount, type AddAccountModel } from '../../domain/usecases/add-account'
-import { type AccountModel } from '../../domain/models/account'
+import { MissingParamErrors, InvalidParamErrors, ServerError } from '../../errors'
+import { type EmailValidator, type AddAccount, type AddAccountModel, type AccountModel } from './signup-protocols'
 
 interface systemUnderTestTypes {
   sut: SignUpController
